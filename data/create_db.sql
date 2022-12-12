@@ -31,7 +31,6 @@ create table Employees (
     employee_name varchar(32),
     employment_type varchar(32),
     phone_number varchar(10),
-    leaves_count integer,
     department_id integer not null,
     tax_id integer not null,
     insurance_id integer not null,
@@ -70,7 +69,7 @@ create table Dependents (
 );
 
 create table Takes_Leaves (
-    id integer,
+    id serial,
     reason varchar(32),
     leave_date date,
     ssn varchar(11) not null,
@@ -79,7 +78,7 @@ create table Takes_Leaves (
 );
 
 create table Bonuses (
-    id integer,
+    id serial,
     amount integer,
     bonus_type varchar(32),
     ssn varchar(11) not null,
@@ -109,12 +108,12 @@ insert into Insurance (id, insurance_type, coverage_percentage) values (2, 'Silv
 insert into Insurance (id, insurance_type, coverage_percentage) values (3, 'Gold', .75);
 insert into Insurance (id, insurance_type, coverage_percentage) values (4, 'Platinum', 1);
 
-insert into Employees (ssn, employee_name, employment_type, phone_number, leaves_count, department_id, tax_id, insurance_id) values 
-('000000000', 'John Johnson', 'Full-time', '2121111111', 10, 1, 3, 3),
-('111111111', 'James Jameson', 'Full-time', '2122222222', 100, 3, 5, 4),
-('222222222', 'Alice Allison', 'Full-time', '2123333333', 5, 2, 2, 1),
-('333333333', 'Jeffrey Jefferson', 'Part-time', '2124444444', 5, 2, 5, 1),
-('444444444', 'Stacy Stacerson', 'Part-time', '2125555555', 5, 2, 4, 2);
+insert into Employees (ssn, employee_name, employment_type, phone_number, department_id, tax_id, insurance_id) values 
+('000000000', 'John Johnson', 'Full-time', '2121111111', 1, 3, 3),
+('111111111', 'James Jameson', 'Full-time', '2122222222', 3, 5, 4),
+('222222222', 'Alice Allison', 'Full-time', '2123333333', 2, 2, 1),
+('333333333', 'Jeffrey Jefferson', 'Part-time', '2124444444', 2, 5, 1),
+('444444444', 'Stacy Stacerson', 'Part-time', '2125555555', 2, 4, 2);
 
 insert into Dependents (employee_ssn, dependent_name, dependent_type) values 
 ('000000000', 'Sally Johnson', 'Child'),
@@ -123,12 +122,12 @@ insert into Dependents (employee_ssn, dependent_name, dependent_type) values
 ('000000000', 'Bobby Johnson', 'Child'),
 ('111111111', 'Wendy Jameson', 'Spouse');
 
-insert into Takes_Leaves (id, reason, leave_date, ssn) values 
-(1, 'Sick', '2022-12-01', '000000000'),
-(2, 'Sick', '2022-12-02', '000000000'),
-(1, 'Sick', '2022-11-01', '111111111'),
-(2, 'Didnt feel like it', '2022-11-15', '111111111'),
-(3, 'Tired', '2022-11-16', '111111111');
+insert into Takes_Leaves (reason, leave_date, ssn) values 
+('Sick', '2022-12-01', '000000000'),
+('Sick', '2022-12-02', '000000000'),
+('Sick', '2022-11-01', '111111111'),
+('Didnt feel like it', '2022-11-15', '111111111'),
+('Tired', '2022-11-16', '111111111');
 
 insert into Paystubs (base_pay, number_regular_hours, number_overtime_hours, tax_id, federal_percent, state_percent, ssn) values
 (15, 40, 20, 3, .22, .06, '000000000'),
@@ -148,12 +147,12 @@ insert into Paystubs (base_pay, number_regular_hours, number_overtime_hours, tax
 (20, 40, 0, 4, .32, .075, '444444444');
 
 insert into Bonuses (id, amount, bonus_type, ssn) values
-(1, 1000, 'Signing', '000000000'),
-(2, 3000, 'Holiday', '000000000'),
-(1, 7000, 'Holiday', '111111111'),
-(1, 2000, 'Holiday', '222222222'),
-(1, 2000, 'Holiday', '333333333'),
-(1, 2000, 'Holiday', '444444444');
+(1000, 'Signing', '000000000'),
+(3000, 'Holiday', '000000000'),
+(7000, 'Holiday', '111111111'),
+(2000, 'Holiday', '222222222'),
+(2000, 'Holiday', '333333333'),
+(2000, 'Holiday', '444444444');
 
 insert into Immigration (ssn, sponsorship_status, immigration_type) values 
 ('000000000', 'Sponsored', 'EB-3'),
