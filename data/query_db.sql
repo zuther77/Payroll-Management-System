@@ -1,3 +1,8 @@
+-- Get 3 most recent pay stubs for particular employee
+select top 3 paystub_date, total_pay, total_tax from Paystubs
+where ssn = '000000000'
+order by paystub_date;
+
 -- Get before-tax pay for particular employee
 select sum(P.total_pay), P.ssn, E.employee_name from Paystubs P, Employees E
 where P.ssn = E.ssn

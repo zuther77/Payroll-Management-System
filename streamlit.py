@@ -74,11 +74,13 @@ if employee_name:
     sql_employee = f"SELECT * FROM employees WHERE employee_name = '{employee_name}';"
     try:
         employee_info = query_db(sql_employee).loc[0]
-        department, type, insurance = (
+        department, type, insurance, ssn = (
             employee_info["department_id"],
             employee_info["employment_type"],
             employee_info["insurance_id"],
+            employee_info["ssn"],
         )
+        department_info = query_db(sql_e)
         st.write(
             f"{employee_name} is a part of the {department} department, is a {type} employee, and has insurance plan {insurance}."
         )
@@ -86,3 +88,12 @@ if employee_name:
         st.write(
             "Sorry! Something went wrong with your query, please try again."
         )
+    try:
+        sql_department = f"SELECT * FROM departments WHERE department_id = '{department}';"
+        department_info = query_db(sql_department).loc[0]
+        department_name = (department_info["department_name"],)
+    except:
+        st.write("Sorry! Something went wrong with your query, please try again.")
+
+
+"## Query by departments"
