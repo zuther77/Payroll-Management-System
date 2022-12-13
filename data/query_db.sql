@@ -51,3 +51,11 @@ where ssn = '000000000';
 
 -- Insert a paystub into the paystubs table, given all the relevant info
 insert into Paystubs ()
+
+--  Group employees based on tax bracket
+
+-- Count dependents for each employee
+
+-- Count leaves for each employee - could group by month
+
+-- Get total compensation - show salary, bonuses, and insurance benefits
