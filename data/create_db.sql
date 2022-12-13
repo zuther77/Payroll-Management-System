@@ -114,7 +114,6 @@ INSERT INTO Departments (id, department_name) VALUES
     (4, 'Finance'),
     (5, 'Sales');
 
-
 INSERT INTO Employees (ssn, employee_name, employment_type, phone_number, department_id, tax_id, insurance_id) VALUES
     ('111-11-1111', 'John Doe', 'Full-time', '1234567890', 1, 1, 4),
     ('222-22-2222', 'Jane Doe', 'Part-time', '0987654321', 2, 2, 2),
@@ -136,8 +135,6 @@ INSERT INTO Employees (ssn, employee_name, employment_type, phone_number, depart
     ('890-12-3456', 'Michael Williams', 'Part-time', '9861673972', 2, 3, 3),
     ('901-23-4567', 'Emily Brown', 'Full-time', '1638269927', 3, 3, 1),
     ('012-34-5678', 'David Brown', 'Part-time', '7826781972', 3, 2, 1);
-
-
 
 INSERT INTO Dependents (employee_ssn, dependent_name, dependent_type) VALUES
     ('111-11-1111', 'Sue Doe', 'Child'),
@@ -162,8 +159,6 @@ INSERT INTO Dependents (employee_ssn, dependent_name, dependent_type) VALUES
     ('777-77-7777', 'Katie Williams', 'Child'),
     ('234-56-7890', 'Carry Roginson', 'Spouse'),
     ('234-56-7890' , 'Joe Roginson' , 'Child');
-
-
 
 insert into Paystubs (paystub_date, base_pay, number_regular_hours, number_overtime_hours, tax_id, federal_percent, state_percent, ssn) values
 ('2022-03-12', 55, 80, 5, 4, 0.32, 0.075, '456-78-9012'),
@@ -260,7 +255,6 @@ insert into Immigration (ssn, sponsorship_status, immigration_type) values
 ('890-12-3456', 'Sponsored', 'E-3'),
 ('901-23-4567', 'Unsponsored', 'Citizen'),
 ('012-34-5678', 'Sponsored', 'O-1');
-
 
 insert into Takes_Leaves (reason, leave_date, emp_ssn) values 
 ('Sick', '2022-11-01', '111-11-1111'),
