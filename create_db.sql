@@ -31,7 +31,6 @@ create table Employees (
     employee_name varchar(32),
     employment_type varchar(32),
     phone_number varchar(10),
-    leaves_count integer,
     department_id integer not null,
     tax_id integer not null,
     insurance_id integer not null,
@@ -40,8 +39,29 @@ create table Employees (
     foreign key (insurance_id) references Insurance(id)
 );
 
+-- create table Paystubs (
+--     id integer,
+--     paystub_date  date,
+--     base_pay integer,
+--     number_regular_hours integer,
+--     number_overtime_hours integer,
+--     tax_id integer not null,
+--     federal_percent numeric,
+--     state_percent numeric,
+--     ssn varchar(11),
+--     total_pay numeric GENERATED ALWAYS as 
+--     ( ((number_regular_hours * base_pay) + (number_overtime_hours * (base_pay * 1.5)))
+--     - (((number_regular_hours * base_pay) + (number_overtime_hours * (base_pay * 1.5))) * federal_percent)
+--     - (((number_regular_hours * base_pay) + (number_overtime_hours * (base_pay * 1.5))) * state_percent) 
+--     ) STORED,
+--     foreign key (tax_id, federal_percent, state_percent) references Taxes(id, federal_percent, state_percent),
+--     foreign key (ssn) references Employees(ssn),
+--     primary key (id, ssn)
+-- );
+
 create table Paystubs (
-    id integer,
+    id serial,
+    pay_date date, 
     base_pay integer,
     number_regular_hours integer,
     number_overtime_hours integer,
@@ -49,10 +69,12 @@ create table Paystubs (
     federal_percent numeric,
     state_percent numeric,
     ssn varchar(11),
+    total_tax numeric GENERATED ALWAYS as 
+    ((((number_regular_hours * base_pay) + (number_overtime_hours * (base_pay * 1.5))) * federal_percent)
+    + (((number_regular_hours * base_pay) + (number_overtime_hours * (base_pay * 1.5))) * state_percent) 
+    ) STORED,
     total_pay numeric GENERATED ALWAYS as 
     ( ((number_regular_hours * base_pay) + (number_overtime_hours * (base_pay * 1.5)))
-    - (((number_regular_hours * base_pay) + (number_overtime_hours * (base_pay * 1.5))) * federal_percent)
-    - (((number_regular_hours * base_pay) + (number_overtime_hours * (base_pay * 1.5))) * state_percent) 
     ) STORED,
     foreign key (tax_id, federal_percent, state_percent) references Taxes(id, federal_percent, state_percent),
     foreign key (ssn) references Employees(ssn),
@@ -68,7 +90,7 @@ create table Dependents (
 );
 
 create table Takes_Leaves (
-    id integer,
+    id serial ,
     reason varchar(32),
     leave_date date,
     ssn varchar(11) not null,
@@ -98,61 +120,222 @@ insert into Taxes (id, federal_percent, state_percent) values (3, .22, .06);
 insert into Taxes (id, federal_percent, state_percent) values (4, .32, .075);
 insert into Taxes (id, federal_percent, state_percent) values (5, .37, .1);
 
-insert into Departments (id, department_name) values (1, 'Sales');
-insert into Departments (id, department_name) values (2, 'Accounting');
-insert into Departments (id, department_name) values (3, 'Management');
 
 insert into Insurance (id, insurance_type, coverage_percentage) values (1, 'Bronze', .25);
 insert into Insurance (id, insurance_type, coverage_percentage) values (2, 'Silver', .5);
 insert into Insurance (id, insurance_type, coverage_percentage) values (3, 'Gold', .75);
 insert into Insurance (id, insurance_type, coverage_percentage) values (4, 'Platinum', 1);
 
-insert into Employees (ssn, employee_name, employment_type, phone_number, leaves_count, department_id, tax_id, insurance_id) values 
-('000000000', 'John Johnson', 'Salesperson', '2121111111', 10, 1, 3, 3),
-('111111111', 'James Jameson', 'Big Boss', '2122222222', 100, 3, 5, 4),
-('222222222', 'Alice Allison', 'Accountant', '2123333333', 5, 2, 2, 1),
-('333333333', 'Jeffrey Jefferson', 'Accountant', '2124444444', 5, 2, 2, 1),
-('444444444', 'Stacy Stacerson', 'Accountant', '2125555555', 5, 2, 4, 2);
+INSERT INTO Departments (id, department_name) VALUES
+    (1, 'HR'),
+    (2, 'Engineering'),
+    (3, 'Marketing'),
+    (4, 'Finance'),
+    (5, 'Sales');
 
-insert into Dependents (employee_ssn, dependent_name, dependent_type) values 
-('000000000', 'Sally Johnson', 'Child'),
-('000000000', 'Jonny Johnson', 'Child'),
-('000000000', 'Jeffy Johnson', 'Child'),
-('000000000', 'Bobby Johnson', 'Child'),
-('111111111', 'Wendy Jameson', 'Spouse');
 
-insert into Takes_Leaves (id, reason, leave_date, ssn) values 
-(1, 'Sick', '2022-12-01', '000000000'),
-(2, 'Sick', '2022-12-02', '000000000'),
-(1, 'Sick', '2022-11-01', '111111111'),
-(2, 'Didnt feel like it', '2022-11-15', '111111111'),
-(3, 'Tired', '2022-11-16', '111111111');
+INSERT INTO Employees (ssn, employee_name, employment_type, phone_number, department_id, tax_id, insurance_id) VALUES
+    ('111-11-1111', 'John Doe', 'Full-time', '1234567890', 1, 1, 4),
+    ('222-22-2222', 'Jane Doe', 'Part-time', '0987654321', 2, 2, 2),
+    ('333-33-3333', 'Alice Smith', 'Full-time', '1357924680', 3, 3, 3),
+    ('444-44-4444', 'Bob Smith', 'Part-time', '1234567890', 4, 4, 4),
+    ('555-55-5555', 'Carol Johnson', 'Full-time', '0123456789', 5, 5, 4),
+    ('666-66-6666', 'David Johnson', 'Part-time', '9876543210', 1, 1, 1),
+    ('777-77-7777', 'Emily Williams', 'Full-time', '0987654321', 2, 2, 2),
+    ('888-88-8888', 'Frank Williams', 'Part-time', '1357924680', 3, 3, 3),
+    ('999-99-9999', 'Grace Brown', 'Full-time', '2468135790', 4, 4, 4),
+    ('000-00-0000', 'Henry Brown', 'Part-time', '2468135790', 5, 5, 2),
+    ('123-45-6789', 'Jannet Joe', 'Full-time', '1234567393', 1, 1, 1),
+    ('234-56-7890', 'John Roginson', 'Part-time', '6892649179', 1, 2, 2),
+    ('345-67-8901', 'Samantha Smith', 'Full-time', '3406731412', 1, 1, 1),
+    ('456-78-9012', 'Michael Smith', 'Part-time', '1794652973', 4, 4, 3),
+    ('567-89-0123', 'Emily Johnson', 'Full-time', '98758730971', 4, 4, 2),
+    ('678-90-1234', 'David Carry', 'Part-time', '8977826871', 4, 3, 2),
+    ('789-01-2345', 'Sarah Williams', 'Full-time', '8751973681', 2, 2, 4),
+    ('890-12-3456', 'Michael Williams', 'Part-time', '9861673972', 2, 3, 3),
+    ('901-23-4567', 'Emily Brown', 'Full-time', '1638269927', 3, 3, 1),
+    ('012-34-5678', 'David Brown', 'Part-time', '7826781972', 3, 2, 1);
 
-insert into Paystubs (id, base_pay, number_regular_hours, number_overtime_hours, tax_id, federal_percent, state_percent, ssn) values
-(1, 15, 40, 20, 3, .22, .06, '000000000'),
-(2, 15, 40, 0, 3, .22, .06, '000000000'),
-(3, 15, 40, 10, 3, .22, .06, '000000000'),
-(1, 30, 40, 0, 5, .37, .1, '111111111'),
-(2, 30, 40, 0, 5, .37, .1, '111111111'),
-(3, 30, 40, 0, 5, .37, .1, '111111111'),
-(1, 12, 40, 0, 2, .12, .045, '222222222'),
-(2, 12, 40, 40, 2, .12, .045, '222222222'),
-(3, 12, 40, 0, 2, .12, .045, '222222222'),
-(1, 18, 40, 0, 2, .12, .045, '333333333'),
-(2, 18, 40, 30, 2, .12, .045, '333333333'),
-(3, 18, 40, 0, 2, .12, .045, '333333333'),
-(1, 20, 40, 0, 4, .32, .075, '444444444'),
-(2, 20, 40, 60, 4, .32, .075, '444444444'),
-(3, 20, 40, 0, 4, .32, .075, '444444444');
 
-insert into Bonuses (id, amount, bonus_type, ssn) values
-(1, 1000, 'Signing', '000000000'),
-(2, 3000, 'Holiday', '000000000'),
-(1, 7000, 'Holiday', '111111111'),
-(1, 2000, 'Holiday', '222222222'),
-(1, 2000, 'Holiday', '333333333'),
-(1, 2000, 'Holiday', '444444444');
+-- insert into Dependents (employee_ssn, dependent_name, dependent_type) values 
+-- ('000000000', 'Sally Johnson', 'Child'),
+-- ('000000000', 'Jonny Johnson', 'Child'),
+-- ('000000000', 'Jeffy Johnson', 'Child'),
+-- ('000000000', 'Bobby Johnson', 'Child'),
+-- ('111111111', 'Wendy Jameson', 'Spouse');
+
+INSERT INTO Dependents (employee_ssn, dependent_name, dependent_type) VALUES
+    ('111-11-1111', 'Sue Doe', 'Child'),
+    ('111-11-1111', 'Mark Doe', 'Child'),
+    ('111-11-1111', 'Linda Doe', 'Spouse'),
+    ('222-22-2222', 'Tom Doe', 'Child'),
+    ('222-22-2222', 'Katie Doe', 'Child'),
+    ('222-22-2222', 'Bob Doe', 'Spouse'),
+    ('333-33-3333', 'Sam Smith', 'Child'),
+    ('333-33-3333', 'Lily Smith', 'Child'),
+    ('333-33-3333', 'Alice Smith', 'Spouse'),
+    ('444-44-4444', 'Mike Smith', 'Child'),
+    ('444-44-4444', 'Carol Smith', 'Child'),
+    ('444-44-4444', 'Bob Smith', 'Spouse'),
+    ('555-55-5555', 'Sarah Johnson', 'Child'),
+    ('555-55-5555', 'George Johnson', 'Child'),
+    ('555-55-5555', 'Carol Johnson', 'Spouse'),
+    ('666-66-6666', 'Sue Williams', 'Child'),
+    ('666-66-6666', 'Mark Williams', 'Child'),
+    ('666-66-6666', 'David Johnson', 'Spouse'),
+    ('777-77-7777', 'Tom Williams', 'Child'),
+    ('777-77-7777', 'Katie Williams', 'Child'),
+    ('234-56-7890', 'Carry Roginson', 'Spouse'),
+    ('234-56-7890' , 'Joe Roginson' , 'Child');
+
+
+insert into Takes_Leaves (reason, leave_date, ssn) values 
+('Sick', '2022-11-01', '111-11-1111'),
+('Sick', '2022-11-06', '222-22-2222'),
+( 'Sick', '2022-12-07', '222-22-2222'),
+( 'Tired', '2022-03-16', '444-44-444'),
+( 'Sick', '2022-03-17', '222-22-2222'),
+( 'Sick', '2022-07-18', '345-67-8901'),
+( 'Sick', '2022-07-19', '456-78-9012'),
+( 'Tired', '2022-05-21', '111-11-1111'),
+( 'Tired', '2022-08-10', '345-67-8901'),
+( 'Sick', '2022-04-03', '456-78-9012'),
+( 'Sick', '2022-04-02', '111-11-1111'),
+( 'Sick', '2022-04-01', '333-33-3333'),
+( 'Sick', '2022-11-13', '222-22-2222'),
+( 'Tired', '2022-10-24', '456-78-9012'),
+( 'Sick', '2022-10-02', '345-67-8901'),
+( 'Didnt feel like it', '2022-03-28', '000-00-0000'),
+( 'Didnt feel like it', '2022-06-12', '000-00-0000'),
+( 'Didnt feel like it', '2022-08-11', '222-22-2222'),
+( 'Didnt feel like it', '2022-09-12', '000-00-0000'),
+( 'Didnt feel like it', '2022-03-18', '222-22-2222'),
+( 'Sick', '2022-10-02', '456-78-9012'),
+( 'Sick', '2022-11-22', '222-22-2222'),
+( 'Sick', '2022-10-22', '456-78-9012'),
+( 'Sick', '2022-11-02', '901-23-4567'),
+( 'Tired', '2022-05-20', '111-11-1111'),
+( 'Tired', '2022-01-27', '456-78-9012'),
+( 'Tired', '2022-03-29', '678-90-1234'),
+( 'Tired', '2022-08-11', '890-12-3456'),
+( 'Tired', '2022-04-11', '890-12-3456'),
+( 'Tired', '2022-05-09', '890-12-3456'),
+( 'Tired', '2022-01-05', '234-56-7890'),
+( 'Tired', '2022-02-17', '901-23-4567'),
+( 'Tired', '2022-04-18', '890-12-3456'),
+( 'Tired', '2022-09-26', '234-56-7890'),
+( 'Tired', '2022-07-02', '901-23-4567'),
+( 'Sick', '2022-01-12', '111-11-1111'),
+( 'Sick', '2022-04-14', '890-12-3456'),
+( 'Sick', '2022-08-12', '678-90-1234'),
+( 'Sick', '2022-02-02', '678-90-1234'),
+( 'Sick', '2022-05-10', '555-55-5555'),
+( 'Sick', '2022-06-28', '555-55-5555'),
+( 'Sick', '2022-09-30', '234-56-7890'),
+( 'Didnt feel like it', '2022-08-21', '555-55-5555'),
+( 'Didnt feel like it', '2022-08-22', '999-99-9999'),
+( 'Didnt feel like it', '2022-08-23', '555-55-5555'),
+( 'Didnt feel like it', '2022-04-11', '999-99-9999'),
+
+
+
+
+
+
+
+insert into Paystubs (id, paystub_date, base_pay, number_regular_hours, number_overtime_hours, tax_id, federal_percent, state_percent, ssn) values
+('2022-03-12', 55, 80, 5, 4, 0.32, 0.075, '456-78-9012'),
+('2022-07-30', 35, 80, 10, 1, 0.1, 0.04, '345-67-8901'),  
+('2022-03-12', 35, 80, 25, 1, 0.1, 0.04, '111-11-1111'),    
+('2022-06-04', 40, 80, 10, 5, 0.37, 0.1, '000-00-0000'),  
+('2022-06-04', 55, 80, 15, 4, 0.32, 0.075, '999-99-9999'),
+('2022-08-27', 55, 80, 25, 3, 0.22, 0.06, '678-90-1234'), 
+('2022-11-19', 55, 80, 5, 4, 0.32, 0.075, '456-78-9012'), 
+('2022-03-26', 35, 80, 10, 2, 0.12, 0.045, '012-34-5678'),
+('2022-02-12', 55, 80, 5, 4, 0.32, 0.075, '444-44-4444'),  
+('2022-05-21', 55, 80, 25, 4, 0.32, 0.075, '567-89-0123'),
+('2022-06-18', 35, 80, 35, 2, 0.12, 0.045, '012-34-5678'),
+('2022-08-27', 55, 80, 10, 3, 0.22, 0.06, '890-12-3456'), 
+('2022-05-07', 55, 80, 10, 4, 0.32, 0.075, '999-99-9999'),
+('2022-03-26', 35, 80, 35, 2, 0.12, 0.045, '234-56-7890'),
+('2022-09-10', 40, 80, 30, 5, 0.37, 0.1, '000-00-0000'),
+('2022-01-01', 55, 80, 10, 4, 0.32, 0.075, '567-89-0123'),
+('2022-05-07', 40, 80, 15, 5, 0.37, 0.1, '000-00-0000'),
+('2022-08-13', 55, 80, 5, 4, 0.32, 0.075, '999-99-9999'),
+('2022-06-04', 35, 80, 40, 1, 0.1, 0.04, '111-11-1111'),
+('2022-04-09', 55, 80, 40, 4, 0.32, 0.075, '567-89-0123'),
+('2022-06-18', 35, 80, 15, 2, 0.12, 0.045, '234-56-7890'),
+('2022-06-04', 35, 80, 40, 1, 0.1, 0.04, '111-11-1111'),
+('2022-07-30', 35, 80, 35, 3, 0.22, 0.06, '888-88-8888'),
+('2022-06-18', 55, 80, 35, 4, 0.32, 0.075, '999-99-9999'),
+('2022-01-29', 40, 80, 25, 5, 0.37, 0.1, '555-55-5555'),
+('2022-03-26', 55, 80, 20, 3, 0.22, 0.06, '678-90-1234'),
+('2022-02-26', 35, 80, 25, 1, 0.1, 0.04, '123-45-6789'),
+('2022-11-19', 35, 80, 20, 3, 0.22, 0.06, '901-23-4567'),
+('2022-10-08', 35, 80, 20, 3, 0.22, 0.06, '888-88-8888'),
+('2022-10-22', 35, 80, 20, 1, 0.1, 0.04, '111-11-1111');
+
+insert into Bonuses (amount, bonus_type, ssn) values
+( 1000, 'Signing', '123-45-6789'),
+( 3000, 'Holiday', '111-111-1111'),
+( 7000, 'Holiday', '222-22-2222'),
+( 2000, 'Holiday', '333-33-3333'),
+( 2000, 'Holiday', '444-44-4444'),
+( 2000, 'Holiday', '555-55-5555'),
+( 2000, 'Holiday', '666-66-6666'),
+( 2000, 'Signing', '777-77-7777'),
+( 2000, 'Signing', '888-88-8888'),
+( 2000, 'Holiday', '999-99-9999'),
+( 2000, 'Signing', '000-00-0000'),
+( 3000, 'Holiday', '234-56-7890'),
+( 1000, 'Holiday', '345-67-8901'),
+( 3000, 'Signing', '456-78-9012'),
+( 2000, 'Signing', '567-89-0123'),
+( 3000, 'Holiday', '890-12-3456'),
+( 5000, 'Signing', '678-90-1234'),
+(4000, 'Signing','789-01-2345'),
+(1200, 'Holiday', '901-23-4567'),
+(2000, 'Holiday' , '012-34-5678')
+    (4500, 'Holiday', '111-11-1111'),
+    (2000, 'Holiday', '222-22-2222'),
+    (1000, 'Signing', '333-33-3333'),
+    (2000, 'Holiday', '444-44-4444'),
+    (1000, 'Holiday', '555-55-5555'),
+    (1000, 'Holiday', '666-66-6666'),
+    (4500, 'Holiday', '777-77-7777'),
+    (2500, 'Holiday', '888-88-8888'),
+    (3500, 'Holiday', '999-99-9999'),
+    (3500, 'Signing', '000-00-0000'),
+    (3500, 'Signing', '123-45-6789'),
+    (2000, 'Holiday', '234-56-7890'),
+    (4000, 'Signing', '345-67-8901'),
+    (4500, 'Signing', '456-78-9012'),
+    (2500, 'Holiday', '567-89-0123'),
+    (3000, 'Signing', '678-90-1234'),
+    (3500, 'Holiday', '789-01-2345'),
+    (4500, 'Holiday', '890-12-3456'),
+    (3500, 'Holiday', '901-23-4567'),
+    (4500, 'Holiday', '012-34-5678')
+;
 
 insert into Immigration (ssn, sponsorship_status, immigration_type) values 
-('000000000', 'Sponsored', 'EB-3'),
-('444444444', 'Sponsored', 'H1-B');
+('111-11-1111', 'Unsponsored', 'Citizen'),
+('222-22-2222', 'Unsponsored', 'Citizen'),
+('333-33-3333', 'Unsponsored', 'Citizen'),
+('444-44-4444', 'Sponsored', 'H1-B'),
+('555-55-5555', 'Unsponsored', 'Citizen'),
+('666-66-6666', 'Unsponsored', 'Citizen'),
+('777-77-7777', 'Sponsored', 'H1-B'),
+('888-88-8888', 'Sponsored', 'O-1'),
+('999-99-9999', 'Unsponsored', 'Citizen'),
+('000-00-0000', 'Sponsored', 'H1-B'),
+('123-45-6789', 'Unsponsored', 'Citizen'),
+('234-56-7890', 'Unsponsored', 'Citizen'),
+('345-67-8901', 'Unsponsored', 'Citizen'),
+('456-78-9012', 'Unsponsored', 'Citizen'),
+('567-89-0123', 'Unsponsored', 'Citizen'),
+('678-90-1234', 'Sponsored', 'H1-B'),
+('789-01-2345', 'Sponsored', 'J-1'),
+('890-12-3456', 'Sponsored', 'E-3'),
+('901-23-4567', 'Unsponsored', 'Citizen'),
+('012-34-5678', 'Sponsored', 'O-1');
