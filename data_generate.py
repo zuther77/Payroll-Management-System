@@ -115,6 +115,9 @@ def generate_paystub_table():
     return temp
 
 
+def generate_take_leaves():
+
+
 if __name__ == "__main__":
     # generate_immigration()
     # generate_bonus_table()
