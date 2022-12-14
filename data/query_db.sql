@@ -3,22 +3,10 @@ select top 3 paystub_date, total_pay, total_tax from Paystubs
 where ssn = '000000000'
 order by paystub_date;
 
--- Get before-tax pay for particular employee
-select sum(P.total_pay), P.ssn, E.employee_name from Paystubs P, Employees E
+-- Get before-tax pay, after-tax pay, and tax paid for particular employee
+select sum(P.total_pay) as Total_Pay, sum(P.total_tax) as Total_Tax, sum(P.total_pay)-sum(P.total_tax) as After_Tax_Pay, E.employee_name from Paystubs P, Employees E
 where P.ssn = E.ssn
-and P.ssn = '000000000'
-group by P.ssn, E.employee_name;
-
--- Get tax paid for particular employee
-select sum(P.total_tax), P.ssn, E.employee_name from Paystubs P, Employees E
-where P.ssn = E.ssn
-and P.ssn = '111111111'
-group by P.ssn, E.employee_name;
-
--- Get after-tax pay for particular employee
-select sum(P.total_pay)-sum(P.total_tax), P.ssn, E.employee_name from Paystubs P, Employees E
-where P.ssn = E.ssn
-and P.ssn = '111111111'
+and P.ssn = '111-11-1111'
 group by P.ssn, E.employee_name;
 
 -- Get number of employees for a particular department
@@ -53,9 +41,6 @@ and P.ssn in (select ssn from Immigration);
 -- Get total amount of bonuses dispersed to a given employee
 select sum(amount) from Bonuses
 where ssn = '000000000';
-
--- Insert a paystub into the paystubs table, given all the relevant info
-insert into Paystubs ()
 
 --  Group employees based on tax bracket
 
