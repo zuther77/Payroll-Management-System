@@ -11,9 +11,9 @@ def get_config(filename="database.ini", section="postgresql"):
     return {k: v for k, v in parser.items(section)}
 
 
-@st.cache
+@st.cache(allow_output_mutation=True)
 def query_db(sql: str):
-    print(f"Running query_db(): {sql}")
+    # print(f"Running query_db(): {sql}")
 
     db_info = get_config()
 
@@ -40,14 +40,17 @@ def query_db(sql: str):
     cur.close()
     conn.close()
 
-    df = pd.DataFrame(data=data, columns=column_names)
+    df = pd.DataFrame(data=data, columns=column_names, dtype=None)
 
     return df
 
 
 all_employees = "Select employee_name from Employees"
 
-"### Get most recent 3 paystubs of an employee"
+
+"# Demo: Payroll Managemnet system"
+
+"#### Get most recent 3 paystubs of an employee"
 
 try:
     query_names_1 = query_db(all_employees)["employee_name"].tolist()
@@ -60,15 +63,18 @@ if query_selectbox_1:
 
     sql_table_1 = f"SELECT to_char(P.paystub_date, 'MM/DD/YYYY') as \"Paystub_date\", P.number_overtime_hours as \"Overtime_Hours\", P.total_pay, P.total_tax, P.total_pay - P.total_tax as Gross_Amount from Employees E, Paystubs P Where E.ssn = P.ssn and E.employee_name = '{query_selectbox_1}' Order by Paystub_date DESC LIMIT 3;"
     try:
-        df = query_db(sql_table_1)
-        st.dataframe(df)
+        df1 = query_db(sql_table_1)
+        df1["total_pay"] = df1["total_pay"].astype('float')
+        df1["total_tax"] = df1["total_tax"].astype('float')
+        df1["gross_amount"] = df1["gross_amount"].astype('float')
+        st.dataframe(df1)
     except:
         st.write(
             "Sorry! Something went wrong with your query, please try again."
         )
 
 
-"### Payroll being given from each department"
+"#### Payroll being given from each department"
 
 try:
     method_3 = st.radio(
@@ -90,6 +96,7 @@ if method_3:
         try:
             sql_3_1 = f"SELECT A.department_name, sum(B.pay) as total_payroll from (SELECT D.department_name, E.ssn From Employees E, Departments D Where E.department_id=D.id group by D.department_name, E.ssn Order By D.department_name) as A JOIN (SELECT P.ssn, sum(P.total_pay) as pay from Paystubs P group by P.ssn) as B ON A.ssn = B.ssn Group by A.department_name;"
             df3_1 = query_db(sql_3_1)
+            df3_1["total_payroll"] = df3_1["total_payroll"].astype('float')
             st.dataframe(df3_1)
         except:
             st.write(
@@ -100,13 +107,15 @@ if method_3:
                 "'" + query_selectbox_3 + "'" + \
                 " group by P.ssn) as B ON A.ssn = B.ssn Group by A.department_name;"
             df3_2 = query_db(sql3_2)
+            df3_2["total_payroll"] = df3_2["total_payroll"].astype('float')
+
             st.dataframe(df3_2)
         except:
             st.write(
                 "Sorry! Something went wrong with your query, please try again.")
 
 
-"### Bonus and insurance type given to each employee"
+"#### Bonus and insurance type given to each employee"
 try:
     query_names_4 = query_db(all_employees)["employee_name"].tolist()
     query_selectbox_4 = st.selectbox(
@@ -127,7 +136,7 @@ if query_selectbox_4:
             "Sorry! Something went wrong with your query, please try again."
         )
 
-"### Find tax brackets for employee based on Immigration."
+"#### Find tax brackets for employee based on Immigration."
 
 try:
     sponsorship = st.radio(
@@ -139,19 +148,19 @@ except:
 if sponsorship:
     f"Display the table"
 
-    if sponsorship == "Sponsored":
-        sql_table_5 = f"SELECT E.employee_name as Name, Tx.federal_percent * 100 as \"Federal_Tax in %\", Tx.state_percent * 100 as \"State_Tax in %\", I.immigration_type as Sponsorship_Type From Employees E JOIN Taxes Tx ON E.tax_id = Tx.id JOIN Immigration I  ON I.ssn = E.ssn Where I.sponsorship_status = '{sponsorship}' order By E.employee_name "
-    else:
-        sql_table_5 = f"SELECT E.employee_name as Name, Tx.federal_percent * 100 as \"Federal_Tax in %\", Tx.state_percent * 100 as \"State_Tax in %\" From Employees E JOIN Taxes Tx ON E.tax_id = Tx.id JOIN Immigration I  ON I.ssn = E.ssn Where I.sponsorship_status = '{sponsorship}' order By E.employee_name "
+    sql_table_5 = f"SELECT E.employee_name as Name, Tx.federal_percent * 100 as \"Federal_Tax in %\", Tx.state_percent * 100 as \"State_Tax in %\" From Employees E JOIN Taxes Tx ON E.tax_id = Tx.id JOIN Immigration I  ON I.ssn = E.ssn Where I.sponsorship_status = '{sponsorship}' order By E.employee_name "
     try:
         df5 = query_db(sql_table_5)
+        df5["Federal_Tax in %"] = df5["Federal_Tax in %"].astype('int')
+        df5["State_Tax in %"] = df5["State_Tax in %"].astype('int')
+
         st.dataframe(df5)
     except:
         st.write(
             "Sorry! Something went wrong with your query, please try again."
         )
 
-"### Count Dependents for each employee"
+"#### Count Dependents for each employee"
 
 try:
     query_names_6 = query_db(all_employees)["employee_name"].tolist()
@@ -175,7 +184,7 @@ if query_selectbox_6:
         )
 
 
-"### Get Leaves by a particular employee"
+"#### Get Leaves by a particular employee"
 
 query7_textbox = st.text_input("Enter name of Employee", key=7)
 query_names_7 = query_db(all_employees)["employee_name"].tolist()
