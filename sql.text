@@ -1,0 +1,1 @@
+4) SELECT E.employee_name as Name, sum(B.amount) as Bonus_amount, I.insurance_type FROM Employees E JOIN Insurance I ON E.insurance_id=I.id JOIN Bonuses B   ON B.ssn=E.ssn WHERE E.employee_name = {employee_name}GROUP BY E.employee_name, I.insurance_type ORDER BY E.employee_name;

@@ -116,6 +116,7 @@ def generate_paystub_table():
 
 
 def generate_take_leaves():
+    pass
 
 
 if __name__ == "__main__":
