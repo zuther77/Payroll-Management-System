@@ -98,6 +98,7 @@ if method_3:
             df3_1 = query_db(sql_3_1)
             df3_1["total_payroll"] = df3_1["total_payroll"].astype('float')
             st.dataframe(df3_1)
+
         except:
             st.write(
                 "Sorry! Something went wrong with your query, please try again.")
@@ -113,6 +114,46 @@ if method_3:
         except:
             st.write(
                 "Sorry! Something went wrong with your query, please try again.")
+
+
+"#### Tax being paid from each department"
+
+try:
+    method_2 = st.radio("How do you want to view the data",
+                        ('Cummulative', 'Monthly'), key=2)
+    if method_2 == 'Monthly':
+        try:
+            query_textbox_2 = st.text_input(
+                "Enter Month ", key=22)
+        except:
+            st.write(
+                "Sorry! Something went wrong with your query, please try again.")
+except:
+    st.write(
+        "Sorry! Something went wrong with your query, please try again.")
+
+if method_2 == "Cummulative":
+    try:
+
+        sql2_1 = f"SELECT A.department_name,  sum(B.tax) as total_tax, count(num_employees) from (SELECT D.department_name, E.ssn, count(E.ssn) as num_employees From Employees E, Departments D Where E.department_id=D.id group by D.department_name, E.ssn Order By D.department_name) as A JOIN (SELECT P.ssn, sum(P.total_tax) as tax from Paystubs P group by P.ssn) as B ON A.ssn = B.ssn Group by A.department_name;"
+        df2_1 = query_db(sql2_1)
+        df2_1["total_tax"] = df2_1["total_tax"].astype('float')
+        st.dataframe(df2_1)
+
+    except:
+        st.write(
+            "Sorry! Something went wrong with your query, please try again.")
+if method_2 == "Monthly":
+    try:
+
+        sql2_2 = f"SELECT A.department_name,  sum(B.tax) as total_tax, count(num_employees) from (SELECT D.department_name, E.ssn, count(E.ssn) as num_employees From Employees E, Departments D Where E.department_id=D.id group by D.department_name, E.ssn Order By D.department_name) as A JOIN (SELECT P.ssn, sum(P.total_tax) as tax from Paystubs P where to_char(P.paystub_date, 'Mon')='{query_textbox_2}' group by P.ssn) as B ON A.ssn = B.ssn Group by A.department_name;"
+        df2_2 = query_db(sql2_2)
+        df2_2["total_tax"] = df2_2["total_tax"].astype('float')
+
+        st.dataframe(df2_2)
+    except:
+        st.write(
+            "Sorry! Something went wrong with your query, please try again.")
 
 
 "#### Bonus and insurance type given to each employee"
