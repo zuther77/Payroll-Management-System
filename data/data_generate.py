@@ -86,7 +86,6 @@ def generate_bonus_table():
 
 
 def generate_paystub_table():
-    temp = []
     with open("paystubs.csv", 'w', newline='') as target:
         writer = csv.writer(
             target, delimiter=',', quoting=csv.QUOTE_NONE, escapechar='', quotechar='\n')
@@ -109,10 +108,9 @@ def generate_paystub_table():
                 row = (counter, date, base_pay, number_of_hours,
                        overtime_hours, taxid, fedral, state, employee_ssn)
                 # print(row, end=',\n')
-                temp.append(row)
-                # writer.writerow(row)
+                # temp.append(row)
+                writer.writerow(row)
                 counter += 1
-    return temp
 
 
 def generate_take_leaves():
@@ -122,11 +120,4 @@ def generate_take_leaves():
 if __name__ == "__main__":
     # generate_immigration()
     # generate_bonus_table()
-    a = generate_paystub_table()
-    visited = set()
-    for i in range(30):
-        chosice = random.choice(a)
-        if chosice[0] not in visited:
-            print(chosice, end=',\n')
-        else:
-            visited.add(chosice)
+    generate_paystub_table()
