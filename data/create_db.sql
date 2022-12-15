@@ -310,12 +310,3 @@ insert into Takes_Leaves (reason, leave_date, emp_ssn) values
 ( 'Didnt feel like it', '2022-08-23', '555-55-5555'),
 ( 'Didnt feel like it', '2022-04-11', '999-99-9999');
 
-22-02-02', '678-90-1234'),
-( 'Sick', '2022-05-10', '555-55-5555'),
-( 'Sick', '2022-06-28', '555-55-5555'),
-( 'Sick', '2022-09-30', '234-56-7890'),
-( 'Didnt feel like it', '2022-08-21', '555-55-5555'),
-( 'Didnt feel like it', '2022-08-22', '999-99-9999'),
-( 'Didnt feel like it', '2022-08-23', '555-55-5555'),
-( 'Didnt feel like it', '2022-04-11', '999-99-9999');
-
