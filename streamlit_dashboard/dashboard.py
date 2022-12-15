@@ -48,9 +48,10 @@ def query_db(sql: str):
 all_employees = "Select employee_name from Employees"
 
 
-"# Demo: Payroll Managemnet system"
+"# Demo: Payroll Management System"
 
 "#### Get most recent 3 paystubs of an employee"
+query_selectbox_1 = None
 
 try:
     query_names_1 = query_db(all_employees)["employee_name"].tolist()
@@ -59,7 +60,7 @@ try:
 except:
     st.write("Sorry! Something went wrong with your query, please try again.")
 
-if query_selectbox_1:
+if query_selectbox_1 != None:
 
     sql_table_1 = f"SELECT to_char(P.paystub_date, 'MM/DD/YYYY') as \"Paystub_date\", P.number_overtime_hours as \"Overtime_Hours\", P.total_pay, P.total_tax, P.total_pay - P.total_tax as Gross_Amount from Employees E, Paystubs P Where E.ssn = P.ssn and E.employee_name = '{query_selectbox_1}' Order by Paystub_date DESC LIMIT 3;"
     try:
@@ -75,10 +76,10 @@ if query_selectbox_1:
 
 
 "#### Payroll being given from each department"
-
+method_3 = None
 try:
     method_3 = st.radio(
-        "How do you want to view the data", ('Cummulative', 'Monthly'))
+        "How do you want to view the data", ('Cumulative', 'Monthly'))
     if method_3 == 'Monthly':
         try:
             query_selectbox_3 = st.selectbox(
@@ -91,8 +92,8 @@ except:
     st.write(
         "Sorry! Something went wrong with your query, please try again.")
 
-if method_3:
-    if method_3 == "Cummulative":
+if method_3 != None:
+    if method_3 == "Cumulative":
         try:
             sql_3_1 = f"SELECT A.department_name, sum(B.pay) as total_payroll from (SELECT D.department_name, E.ssn From Employees E, Departments D Where E.department_id=D.id group by D.department_name, E.ssn Order By D.department_name) as A JOIN (SELECT P.ssn, sum(P.total_pay) as pay from Paystubs P group by P.ssn) as B ON A.ssn = B.ssn Group by A.department_name;"
             df3_1 = query_db(sql_3_1)
@@ -117,10 +118,10 @@ if method_3:
 
 
 "#### Tax being paid from each department"
-
+method_2 = None
 try:
     method_2 = st.radio("How do you want to view the data",
-                        ('Cummulative', 'Monthly'), key=2)
+                        ('Cumulative', 'Monthly'), key=2)
     if method_2 == 'Monthly':
         try:
             query_textbox_2 = st.text_input(
@@ -132,7 +133,7 @@ except:
     st.write(
         "Sorry! Something went wrong with your query, please try again.")
 
-if method_2 == "Cummulative":
+if method_2 == "Cumulative":
     try:
 
         sql2_1 = f"SELECT A.department_name,  sum(B.tax) as total_tax, count(num_employees) from (SELECT D.department_name, E.ssn, count(E.ssn) as num_employees From Employees E, Departments D Where E.department_id=D.id group by D.department_name, E.ssn Order By D.department_name) as A JOIN (SELECT P.ssn, sum(P.total_tax) as tax from Paystubs P group by P.ssn) as B ON A.ssn = B.ssn Group by A.department_name;"
@@ -143,7 +144,7 @@ if method_2 == "Cummulative":
     except:
         st.write(
             "Sorry! Something went wrong with your query, please try again.")
-if method_2 == "Monthly":
+elif method_2 == "Monthly":
     try:
 
         sql2_2 = f"SELECT A.department_name,  sum(B.tax) as total_tax, count(num_employees) from (SELECT D.department_name, E.ssn, count(E.ssn) as num_employees From Employees E, Departments D Where E.department_id=D.id group by D.department_name, E.ssn Order By D.department_name) as A JOIN (SELECT P.ssn, sum(P.total_tax) as tax from Paystubs P where to_char(P.paystub_date, 'Mon')='{query_textbox_2}' group by P.ssn) as B ON A.ssn = B.ssn Group by A.department_name;"
@@ -157,6 +158,7 @@ if method_2 == "Monthly":
 
 
 "#### Bonus and insurance type given to each employee"
+query_selectbox_4 = None
 try:
     query_names_4 = query_db(all_employees)["employee_name"].tolist()
     query_selectbox_4 = st.selectbox(
@@ -165,7 +167,7 @@ try:
 except:
     st.write("Sorry! Something went wrong with your query, please try again.")
 
-if query_selectbox_4:
+if query_selectbox_4 != None:
     f"Display the table"
 
     sql_table_4 = f"SELECT E.employee_name as Name, sum(B.amount) as Bonus_amount, I.insurance_type FROM Employees E JOIN Insurance I ON E.insurance_id=I.id JOIN Bonuses B   ON B.ssn=E.ssn WHERE E.employee_name = '{query_selectbox_4}' GROUP BY E.employee_name, I.insurance_type ORDER BY E.employee_name;"
@@ -178,7 +180,7 @@ if query_selectbox_4:
         )
 
 "#### Find tax brackets for employee based on Immigration."
-
+sponsorship = None
 try:
     sponsorship = st.radio(
         "Select Immigartion Category", ('Sponsored', 'Unsponsored'))
@@ -186,7 +188,7 @@ except:
     st.write("Sorry! Something went wrong with your query, please try again.")
 
 
-if sponsorship:
+if sponsorship != None:
     f"Display the table"
 
     sql_table_5 = f"SELECT E.employee_name as Name, Tx.federal_percent * 100 as \"Federal_Tax in %\", Tx.state_percent * 100 as \"State_Tax in %\" From Employees E JOIN Taxes Tx ON E.tax_id = Tx.id JOIN Immigration I  ON I.ssn = E.ssn Where I.sponsorship_status = '{sponsorship}' order By E.employee_name "
@@ -202,7 +204,7 @@ if sponsorship:
         )
 
 "#### Count Dependents for each employee"
-
+query_selectbox_6 = None
 try:
     query_names_6 = query_db(all_employees)["employee_name"].tolist()
     query_selectbox_6 = st.selectbox(
@@ -210,7 +212,7 @@ try:
 except:
     st.write("Sorry! Something went wrong with your query, please try again.")
 
-if query_selectbox_6:
+if query_selectbox_6 != None:
     sql_6 = f"Select A.name as Employee_name, A.dependent_name as Spouse_name, B.count as \"No.of Children\" from (SELECT E1.employee_name as name, D1.dependent_name from Employees E1, Dependents D1 Where E1.ssn=D1.employee_ssn and D1.dependent_type='Spouse') as A JOIN(SELECT E2.employee_name as name, count(D2.dependent_type) From Employees E2 JOIN Dependents D2 ON E2.ssn=D2.employee_ssn Where D2.dependent_type='Child' Group By E2.employee_name) as B ON A.name = B.name Where A.name = '{query_selectbox_6}'"
     try:
         df6 = query_db(sql_6)
