@@ -206,23 +206,16 @@ if query7_textbox:
                 "Sorry! Something went wrong with your query, please try again."
             )
 
-"#### Get pay for employees who worked a certain number of overtime hours: "
-query_selectbox_8 = None
-try:
-    query_hrs_8 = query_db(all_ot_hours)["number_overtime_hours"].tolist()
-    query_selectbox_8 = st.selectbox(
-        "Choose a number of hours:", query_hrs_8, key=8)
-except:
-    st.write("Sorry! Something went wrong with your query, please try again.")
-
-if query_selectbox_8 != None:
-    sql_8 = f"Select E.employee_name, P.base_pay * number_regular_hours as Regular_pay, P.base_pay * P.number_overtime_hours * 1.5 as Extra_overtime_pay from Paystubs P, Employees E Where P.ssn = E.ssn and P.number_overtime_hours = {query_selectbox_8} order by E.employee_name;"
+query8_textbox = st.text_input("Enter the number of hours:", key=8)
+if query8_textbox:
+    sql_8 = f"Select E.employee_name, P.base_pay * number_regular_hours as Regular_pay, P.base_pay * P.number_overtime_hours * 1.5 as Extra_overtime_pay from Paystubs P, Employees E Where P.ssn = E.ssn and P.number_overtime_hours = {query8_textbox} order by E.employee_name;"
     try:
         df8 = query_db(sql_8)
+        df8["extra_overtime_pay"] = df8["extra_overtime_pay"].astype("float")
         if len(df8.index):
             st.dataframe(df8)
         else:
-            st.write(query_selectbox_8 + " has no ot hours.")
+            st.write("No employee worked for the entered number of hours.")
     except:
         st.write(
             "Sorry! Something went wrong with your query, please try again."
