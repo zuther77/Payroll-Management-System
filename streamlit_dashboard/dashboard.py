@@ -185,23 +185,22 @@ if query_selectbox_6 != None:
 
 
 "#### Get leaves by a particular employee:"
-query_selectbox_7 = None
-try:
-    query_names_7 = query_db(all_employees)["employee_name"].tolist()
-    query_selectbox_7 = st.selectbox(
-        "Choose an employee:", query_names_7, key=7)
-except:
-    st.write("Sorry! Something went wrong with your query, please try again.")
+query7_textbox = st.text_input("Choose an Employee:", key=7)
+query_names_7 = query_db(all_employees)["employee_name"].tolist()
 
-if query_selectbox_7 != None:
-    sql_7 = f"SELECT to_char(leave_date, \'Month\') as Month,  count(TL.reason) as count_leaves FROM Takes_Leaves TL, Employees E Where TL.emp_ssn = E.ssn and E.employee_name = '{query_selectbox_7}' GROUP BY Month, extract(month from TL.leave_date) Order By extract(month from TL.leave_date);"
-    try:
-        df7 = query_db(sql_7)
-        if len(df7.index):
-            st.dataframe(df7)
-        else:
-            st.write(query_selectbox_7 + " has taken no Leaves this year")
-    except:
-        st.write(
-            "Sorry! Something went wrong with your query, please try again."
-        )
+
+if query7_textbox:
+    if query7_textbox not in query_names_7:
+        st.write("No such employee in database")
+    else:
+        sql_7 = f"SELECT to_char(leave_date, \'Month\') as Month,  count(TL.reason) as count_leaves FROM Takes_Leaves TL, Employees E Where TL.emp_ssn = E.ssn and E.employee_name = '{query7_textbox}' GROUP BY Month, extract(month from TL.leave_date) Order By extract(month from TL.leave_date);"
+        try:
+            df7 = query_db(sql_7)
+            if len(df7.index):
+                st.dataframe(df7)
+            else:
+                st.write(query7_textbox + " has taken no Leaves this year")
+        except:
+            st.write(
+                "Sorry! Something went wrong with your query, please try again."
+            )
