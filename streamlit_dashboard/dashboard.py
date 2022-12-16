@@ -50,13 +50,13 @@ all_employees = "Select employee_name from Employees"
 
 "# Demo: Payroll Management System"
 
-"#### Get most recent 3 paystubs of an employee"
+"#### Get most recent 3 paystubs for an employee:"
 query_selectbox_1 = None
 
 try:
     query_names_1 = query_db(all_employees)["employee_name"].tolist()
     query_selectbox_1 = st.selectbox(
-        "Choose an employee", query_names_1, key=1)
+        "Choose an employee:", query_names_1, key=1)
 except:
     st.write("Sorry! Something went wrong with your query, please try again.")
 
@@ -75,11 +75,11 @@ if query_selectbox_1 != None:
         )
 
 
-"#### Payroll being given from each department"
+"#### Get tax, payroll, and number of employees for each department:"
 method_3 = None
 try:
     method_3 = st.radio(
-        "How do you want to view the data", ('Cumulative', 'Monthly'))
+        "How do you want to view the data?", ('Cumulative', 'Monthly'))
     if method_3 == 'Monthly':
         try:
             query_selectbox_3 = st.selectbox(
@@ -95,7 +95,7 @@ except:
 if method_3 != None:
     if method_3 == "Cumulative":
         try:
-            sql_3_1 = f"SELECT A.department_name, sum(B.pay) as total_payroll from (SELECT D.department_name, E.ssn From Employees E, Departments D Where E.department_id=D.id group by D.department_name, E.ssn Order By D.department_name) as A JOIN (SELECT P.ssn, sum(P.total_pay) as pay from Paystubs P group by P.ssn) as B ON A.ssn = B.ssn Group by A.department_name;"
+            sql_3_1 = f"SELECT A.department_name, sum(B.pay) as total_payroll, sum(B.tax) as total_tax, count(num_employees) from (SELECT D.department_name, E.ssn, count(E.ssn) as num_employees From Employees E, Departments D Where E.department_id=D.id group by D.department_name, E.ssn Order By D.department_name) as A JOIN (SELECT P.ssn, sum(P.total_pay) as pay, sum(P.total_tax) as tax from Paystubs P group by P.ssn) as B ON A.ssn = B.ssn Group by A.department_name;"
             df3_1 = query_db(sql_3_1)
             df3_1["total_payroll"] = df3_1["total_payroll"].astype('float')
             st.dataframe(df3_1)
@@ -105,7 +105,7 @@ if method_3 != None:
                 "Sorry! Something went wrong with your query, please try again.")
     if method_3 == "Monthly":
         try:
-            sql3_2 = "SELECT A.department_name , sum(B.pay) as total_payroll from (SELECT D.department_name , E.ssn From Employees E , Departments D Where E.department_id = D.id group by D.department_name, E.ssn Order By D.department_name) as A JOIN (SELECT P.ssn , sum(P.total_pay) as pay from Paystubs P where to_char(P.paystub_date, 'Mon') = " + \
+            sql3_2 = "SELECT A.department_name , sum(B.pay) as total_payroll, sum(B.tax) as total_tax, count(num_employees) from (SELECT D.department_name, E.ssn, count(E.ssn) as num_employees From Employees E , Departments D Where E.department_id = D.id group by D.department_name, E.ssn Order By D.department_name) as A JOIN (SELECT P.ssn , sum(P.total_pay) as pay, sum(P.total_tax) as tax from Paystubs P where to_char(P.paystub_date, 'Mon') = " + \
                 "'" + query_selectbox_3 + "'" + \
                 " group by P.ssn) as B ON A.ssn = B.ssn Group by A.department_name;"
             df3_2 = query_db(sql3_2)
@@ -116,59 +116,17 @@ if method_3 != None:
             st.write(
                 "Sorry! Something went wrong with your query, please try again.")
 
-
-"#### Tax being paid from each department"
-method_2 = None
-try:
-    method_2 = st.radio("How do you want to view the data",
-                        ('Cumulative', 'Monthly'), key=2)
-    if method_2 == 'Monthly':
-        try:
-            query_textbox_2 = st.text_input(
-                "Enter Month ", key=22)
-        except:
-            st.write(
-                "Sorry! Something went wrong with your query, please try again.")
-except:
-    st.write(
-        "Sorry! Something went wrong with your query, please try again.")
-
-if method_2 == "Cumulative":
-    try:
-
-        sql2_1 = f"SELECT A.department_name,  sum(B.tax) as total_tax, count(num_employees) from (SELECT D.department_name, E.ssn, count(E.ssn) as num_employees From Employees E, Departments D Where E.department_id=D.id group by D.department_name, E.ssn Order By D.department_name) as A JOIN (SELECT P.ssn, sum(P.total_tax) as tax from Paystubs P group by P.ssn) as B ON A.ssn = B.ssn Group by A.department_name;"
-        df2_1 = query_db(sql2_1)
-        df2_1["total_tax"] = df2_1["total_tax"].astype('float')
-        st.dataframe(df2_1)
-
-    except:
-        st.write(
-            "Sorry! Something went wrong with your query, please try again.")
-elif method_2 == "Monthly":
-    try:
-
-        sql2_2 = f"SELECT A.department_name,  sum(B.tax) as total_tax, count(num_employees) from (SELECT D.department_name, E.ssn, count(E.ssn) as num_employees From Employees E, Departments D Where E.department_id=D.id group by D.department_name, E.ssn Order By D.department_name) as A JOIN (SELECT P.ssn, sum(P.total_tax) as tax from Paystubs P where to_char(P.paystub_date, 'Mon')='{query_textbox_2}' group by P.ssn) as B ON A.ssn = B.ssn Group by A.department_name;"
-        df2_2 = query_db(sql2_2)
-        df2_2["total_tax"] = df2_2["total_tax"].astype('float')
-
-        st.dataframe(df2_2)
-    except:
-        st.write(
-            "Sorry! Something went wrong with your query, please try again.")
-
-
-"#### Bonus and insurance type given to each employee"
+"#### Get bonus and insurance type given to each employee:"
 query_selectbox_4 = None
 try:
     query_names_4 = query_db(all_employees)["employee_name"].tolist()
     query_selectbox_4 = st.selectbox(
-        "Choose an employee", query_names_4, key=4)
+        "Choose an employee:", query_names_4, key=4)
 
 except:
     st.write("Sorry! Something went wrong with your query, please try again.")
 
 if query_selectbox_4 != None:
-    f"Display the table"
 
     sql_table_4 = f"SELECT E.employee_name as Name, sum(B.amount) as Bonus_amount, I.insurance_type FROM Employees E JOIN Insurance I ON E.insurance_id=I.id JOIN Bonuses B   ON B.ssn=E.ssn WHERE E.employee_name = '{query_selectbox_4}' GROUP BY E.employee_name, I.insurance_type ORDER BY E.employee_name;"
     try:
@@ -179,17 +137,16 @@ if query_selectbox_4 != None:
             "Sorry! Something went wrong with your query, please try again."
         )
 
-"#### Find tax brackets for employee based on Immigration."
+"#### Find tax brackets for employees based on immigration:"
 sponsorship = None
 try:
     sponsorship = st.radio(
-        "Select Immigartion Category", ('Sponsored', 'Unsponsored'))
+        "Select immigration category:", ('Sponsored', 'Unsponsored'))
 except:
     st.write("Sorry! Something went wrong with your query, please try again.")
 
 
 if sponsorship != None:
-    f"Display the table"
 
     sql_table_5 = f"SELECT E.employee_name as Name, Tx.federal_percent * 100 as \"Federal_Tax in %\", Tx.state_percent * 100 as \"State_Tax in %\" From Employees E JOIN Taxes Tx ON E.tax_id = Tx.id JOIN Immigration I  ON I.ssn = E.ssn Where I.sponsorship_status = '{sponsorship}' order By E.employee_name "
     try:
@@ -203,12 +160,12 @@ if sponsorship != None:
             "Sorry! Something went wrong with your query, please try again."
         )
 
-"#### Count Dependents for each employee"
+"#### Count dependents for a particular employee:"
 query_selectbox_6 = None
 try:
     query_names_6 = query_db(all_employees)["employee_name"].tolist()
     query_selectbox_6 = st.selectbox(
-        "Choose an employee", query_names_6, key=6)
+        "Choose an employee:", query_names_6, key=6)
 except:
     st.write("Sorry! Something went wrong with your query, please try again.")
 
@@ -220,31 +177,31 @@ if query_selectbox_6 != None:
         if len(df6.index):
             st.dataframe(df6)
         else:
-            st.write(query_selectbox_6 + " has  no Dependents")
+            st.write(query_selectbox_6 + " has no Dependents")
     except:
         st.write(
             "Sorry! Something went wrong with your query, please try again."
         )
 
 
-"#### Get Leaves by a particular employee"
+"#### Get leaves by a particular employee:"
+query_selectbox_7 = None
+try:
+    query_names_7 = query_db(all_employees)["employee_name"].tolist()
+    query_selectbox_7 = st.selectbox(
+        "Choose an employee:", query_names_7, key=7)
+except:
+    st.write("Sorry! Something went wrong with your query, please try again.")
 
-query7_textbox = st.text_input("Enter name of Employee", key=7)
-query_names_7 = query_db(all_employees)["employee_name"].tolist()
-
-
-if query7_textbox:
-    if query7_textbox not in query_names_7:
-        st.write("No such employee in database")
-    else:
-        sql_7 = f"SELECT to_char(leave_date, \'Month\') as Month,  count(TL.reason) as count_leaves FROM Takes_Leaves TL, Employees E Where TL.emp_ssn = E.ssn and E.employee_name = '{query7_textbox}' GROUP BY Month, extract(month from TL.leave_date) Order By extract(month from TL.leave_date);"
-        try:
-            df7 = query_db(sql_7)
-            if len(df7.index):
-                st.dataframe(df7)
-            else:
-                st.write(query7_textbox + " has taken no Leaves this year")
-        except:
-            st.write(
-                "Sorry! Something went wrong with your query, please try again."
-            )
+if query_selectbox_7 != None:
+    sql_7 = f"SELECT to_char(leave_date, \'Month\') as Month,  count(TL.reason) as count_leaves FROM Takes_Leaves TL, Employees E Where TL.emp_ssn = E.ssn and E.employee_name = '{query_selectbox_7}' GROUP BY Month, extract(month from TL.leave_date) Order By extract(month from TL.leave_date);"
+    try:
+        df7 = query_db(sql_7)
+        if len(df7.index):
+            st.dataframe(df7)
+        else:
+            st.write(query_selectbox_7 + " has taken no Leaves this year")
+    except:
+        st.write(
+            "Sorry! Something went wrong with your query, please try again."
+        )
