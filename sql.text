@@ -51,4 +51,9 @@ Order By extract(month from TL.leave_date);
 
 
 
-SELECT A.department_name , sum(B.pay) as total_payroll from (SELECT D.department_name , E.ssn From Employees E , Departments D Where E.department_id = D.id group by D.department_name, E.ssn Order By D.department_name) as A JOIN (SELECT P.ssn , sum(P.total_pay) as pay from Paystubs P where to_char(P.paystub_date, 'Mon') = 'Jan' group by P.ssn) as B ON A.ssn = B.ssn Group by A.department_name;
+8) -- get employees who worked more than 5 overtime hours and the amount that added to thier paycheck 
+
+Select E.employee_name , P.base_pay * number_regular_hours as "Regular_pay" ,  P.base_pay * P.number_overtime_hours * 1.5 as "Extra_overtime_pay"
+from Paystubs P , Employees E
+Where P.ssn = E.ssn and P.number_overtime_hours  = 5
+order by E.employee_name
