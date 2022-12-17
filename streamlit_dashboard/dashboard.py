@@ -209,7 +209,7 @@ if query7_textbox:
 "#### Employee who worked overtime and the extra amount they recieved "
 
 query8_textbox = st.slider(
-    'How many overtime hours do you want to see ?', 0, 40, 5, step=5, key=8)
+    'How many overtime hours do you want to see ?', 0, 40, 5, step=5, key=9)
 if query8_textbox:
     sql_8 = f"Select E.employee_name, P.base_pay * number_regular_hours as \"Regular_pay\", P.base_pay * P.number_overtime_hours * 1.5 as \"Extra_overtime_pay\" from Paystubs P, Employees E Where P.ssn = E.ssn and P.number_overtime_hours = '{query8_textbox}' order by E.employee_name;"
     try:
