@@ -46,9 +46,10 @@ def query_db(sql: str):
 
 
 all_employees = "Select employee_name from Employees"
+all_ot_hours = "select distinct number_overtime_hours from Paystubs order by number_overtime_hours"
 
-
-"# Demo: Payroll Management System"
+"# Payroll Management System! "
+"Erin Miller (em4919) & Shreeraj Pawar (srp8095)"
 
 "#### Get most recent 3 paystubs for an employee:"
 query_selectbox_1 = None
@@ -204,3 +205,21 @@ if query7_textbox:
             st.write(
                 "Sorry! Something went wrong with your query, please try again."
             )
+
+"#### Employee who worked overtime and the extra amount they recieved "
+
+query8_textbox = st.slider(
+    'How many overtime hours do you want to see ?', 0, 40, 5, step=5, key=8)
+if query8_textbox:
+    sql_8 = f"Select E.employee_name, P.base_pay * number_regular_hours as \"Regular_pay\", P.base_pay * P.number_overtime_hours * 1.5 as \"Extra_overtime_pay\" from Paystubs P, Employees E Where P.ssn = E.ssn and P.number_overtime_hours = '{query8_textbox}' order by E.employee_name;"
+    try:
+        df8 = query_db(sql_8)
+        df8["Extra_overtime_pay"] = df8["Extra_overtime_pay"].astype("float")
+        if len(df8.index):
+            st.dataframe(df8)
+        else:
+            st.write("No employee worked for the entered number of hours")
+    except:
+        st.write(
+            "Sorry! Something went wrong with your query, please try again."
+        )
